@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Goal Tracker + Progress Logger</title>
+    <title>Advanced Goal Tracker</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: #333;
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
             background-color: #f5f7fa;
@@ -27,6 +27,7 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             padding: 20px;
             margin-bottom: 30px;
+            overflow-x: auto;
         }
         
         h2 {
@@ -40,6 +41,7 @@
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
+            min-width: 1000px;
         }
         
         th, td {
@@ -52,20 +54,40 @@
             background-color: #f8f9fa;
             font-weight: 600;
             color: #2c3e50;
+            position: sticky;
+            top: 0;
         }
         
         tr:hover {
             background-color: #f5f5f5;
         }
         
+        tr.sub-goal {
+            background-color: #f8fafc;
+        }
+        
+        tr.sub-goal td:first-child {
+            padding-left: 40px;
+            position: relative;
+        }
+        
+        tr.sub-goal td:first-child::before {
+            content: "→";
+            position: absolute;
+            left: 20px;
+            color: #7f8c8d;
+        }
+        
         input[type="text"], 
         input[type="number"],
+        input[type="date"],
         select {
             width: 100%;
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
             box-sizing: border-box;
+            background-color: white;
         }
         
         button {
@@ -77,6 +99,7 @@
             cursor: pointer;
             font-size: 14px;
             transition: background-color 0.3s;
+            white-space: nowrap;
         }
         
         button:hover {
@@ -103,6 +126,7 @@
             display: flex;
             gap: 10px;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
         
         .progress-input {
@@ -113,7 +137,7 @@
         
         .progress-input input {
             flex: 1;
-            max-width: 100px;
+            max-width: 80px;
         }
         
         .status-pending {
@@ -132,6 +156,14 @@
             color: #e74c3c;
         }
         
+        .status-behind {
+            color: #e67e22;
+        }
+        
+        .status-ontrack {
+            color: #27ae60;
+        }
+        
         .hidden {
             display: none;
         }
@@ -142,333 +174,345 @@
             background-color: #f8f9fa;
             border-radius: 4px;
         }
+        
+        .progress-bar-container {
+            width: 100%;
+            background-color: #ecf0f1;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            border-radius: 4px;
+            background-color: #3498db;
+        }
+        
+        .add-subgoal-btn {
+            background-color: #9b59b6;
+            margin-left: 20px;
+        }
+        
+        .add-subgoal-btn:hover {
+            background-color: #8e44ad;
+        }
     </style>
 </head>
 <body>
-    <h1>Goal Tracker + Progress Logger</h1>
+    <h1>Advanced Goal Tracker</h1>
     
     <div class="section">
-        <h2>Goal Tracker</h2>
+        <h2>Goal Tracking Dashboard</h2>
         <table id="goalTable">
             <thead>
                 <tr>
                     <th>Goal Name</th>
                     <th>Start Date</th>
                     <th>End Date</th>
-                    <th>Target</th>
-                    <th>Progress</th>
+                    <th>🕒 Available Time</th>
+                    <th>⏳ Time Remaining</th>
+                    <th>Follow-up Date</th>
+                    <th>Progress Filled</th>
+                    <th>⏱️ Last Updated</th>
+                    <th>Required Progress</th>
+                    <th>End Target</th>
                     <th>Unit</th>
+                    <th>Repetition</th>
                     <th>Status</th>
-                    <th>Last Updated</th>
+                    <th>Progress Rank</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
+                <!-- Main Goal 1 -->
                 <tr>
-                    <td contenteditable="true">Read 3 books</td>
-                    <td><input type="date" value="2023-01-01"></td>
-                    <td><input type="date" value="2023-12-31"></td>
-                    <td><input type="number" value="3"></td>
+                    <td contenteditable="true">➕ Walking</td>
+                    <td><input type="date" value="2025-06-01"></td>
+                    <td><input type="date" value="2025-06-30"></td>
+                    <td class="available-time">30 days</td>
+                    <td class="time-remaining">22 days</td>
+                    <td><input type="date" value="2025-06-08"></td>
                     <td>
                         <div class="progress-input">
-                            <input type="number" value="1" class="progress-value">
-                            <button class="update-progress">Update</button>
+                            <input type="number" value="12000" class="progress-value">
                         </div>
                     </td>
+                    <td class="last-updated">08-06-2025 09:32 AM</td>
+                    <td><input type="number" value="15000"></td>
+                    <td><input type="number" value="150000"></td>
                     <td>
                         <select>
-                            <option>books</option>
-                            <option>pages</option>
-                            <option>chapters</option>
-                        </select>
-                    </td>
-                    <td>
-                        <select class="status-select">
-                            <option value="pending" class="status-pending">Pending</option>
-                            <option value="in-progress" selected class="status-in-progress">In Progress</option>
-                            <option value="completed" class="status-completed">Completed</option>
-                            <option value="overdue" class="status-overdue">Overdue</option>
-                        </select>
-                    </td>
-                    <td class="last-updated">2023-05-15 14:30</td>
-                    <td>
-                        <button class="edit-btn">✏️ Edit</button>
-                        <button class="delete-btn button-danger">🗑️ Delete</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td contenteditable="true">Walk 10,000 steps daily</td>
-                    <td><input type="date" value="2023-01-01"></td>
-                    <td><input type="date" value="2023-12-31"></td>
-                    <td><input type="number" value="10000"></td>
-                    <td>
-                        <div class="progress-input">
-                            <input type="number" value="7500" class="progress-value">
-                            <button class="update-progress">Update</button>
-                        </div>
-                    </td>
-                    <td>
-                        <select>
-                            <option>steps</option>
+                            <option selected>steps</option>
                             <option>miles</option>
                             <option>km</option>
                         </select>
                     </td>
                     <td>
-                        <select class="status-select">
-                            <option value="pending" class="status-pending">Pending</option>
-                            <option value="in-progress" selected class="status-in-progress">In Progress</option>
-                            <option value="completed" class="status-completed">Completed</option>
-                            <option value="overdue" class="status-overdue">Overdue</option>
+                        <select>
+                            <option selected>Daily</option>
+                            <option>Weekly</option>
+                            <option>Monthly</option>
                         </select>
                     </td>
-                    <td class="last-updated">2023-05-15 09:15</td>
                     <td>
-                        <button class="edit-btn">✏️ Edit</button>
-                        <button class="delete-btn button-danger">🗑️ Delete</button>
+                        <select class="status-select">
+                            <option value="pending" class="status-pending">Pending</option>
+                            <option value="in-progress" class="status-in-progress">In Progress</option>
+                            <option value="completed" class="status-completed">Completed</option>
+                            <option value="overdue" class="status-overdue">Overdue</option>
+                            <option value="behind" selected class="status-behind">⚠️ Behind</option>
+                            <option value="ontrack" class="status-ontrack">🚀 On Track</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="rank-select">
+                            <option>1/10</option>
+                            <option>2/10</option>
+                            <option>3/10</option>
+                            <option>4/10</option>
+                            <option>5/10</option>
+                            <option>6/10</option>
+                            <option>7/10</option>
+                            <option selected>8/10</option>
+                            <option>9/10</option>
+                            <option>10/10</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button class="edit-btn">✏️</button>
+                        <button class="delete-btn button-danger">🗑️</button>
+                        <button class="add-subgoal-btn">➕</button>
                     </td>
                 </tr>
+                
+                <!-- Main Goal 2 with Subgoals -->
                 <tr>
-                    <td contenteditable="true">Learn JavaScript</td>
-                    <td><input type="date" value="2023-03-01"></td>
-                    <td><input type="date" value="2023-06-30"></td>
-                    <td><input type="number" value="100"></td>
+                    <td contenteditable="true">➕ Writing</td>
+                    <td><input type="date" value="2025-06-05"></td>
+                    <td><input type="date" value="2025-07-05"></td>
+                    <td class="available-time">30 days</td>
+                    <td class="time-remaining">27 days</td>
+                    <td><input type="date" value="2025-06-10"></td>
                     <td>
                         <div class="progress-input">
-                            <input type="number" value="45" class="progress-value">
-                            <button class="update-progress">Update</button>
+                            <input type="number" value="30" class="progress-value">
                         </div>
+                    </td>
+                    <td class="last-updated">07-06-2025 06:20 PM</td>
+                    <td><input type="number" value="30"></td>
+                    <td><input type="number" value="120"></td>
+                    <td>
+                        <select>
+                            <option selected>pages</option>
+                            <option>words</option>
+                            <option>chapters</option>
+                        </select>
                     </td>
                     <td>
                         <select>
-                            <option>hours</option>
-                            <option>lessons</option>
-                            <option>projects</option>
+                            <option>Daily</option>
+                            <option selected>Weekly</option>
+                            <option>Monthly</option>
                         </select>
                     </td>
                     <td>
                         <select class="status-select">
+                            <option value="completed" selected class="status-completed">✅ Completed</option>
+                            <option value="in-progress" class="status-in-progress">In Progress</option>
                             <option value="pending" class="status-pending">Pending</option>
-                            <option value="in-progress" selected class="status-in-progress">In Progress</option>
-                            <option value="completed" class="status-completed">Completed</option>
                             <option value="overdue" class="status-overdue">Overdue</option>
+                            <option value="behind" class="status-behind">⚠️ Behind</option>
+                            <option value="ontrack" class="status-ontrack">🚀 On Track</option>
                         </select>
                     </td>
-                    <td class="last-updated">2023-05-14 18:45</td>
                     <td>
-                        <button class="edit-btn">✏️ Edit</button>
-                        <button class="delete-btn button-danger">🗑️ Delete</button>
+                        <select class="rank-select">
+                            <option>1/10</option>
+                            <option>2/10</option>
+                            <option>3/10</option>
+                            <option>4/10</option>
+                            <option>5/10</option>
+                            <option>6/10</option>
+                            <option>7/10</option>
+                            <option>8/10</option>
+                            <option>9/10</option>
+                            <option selected>10/10</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button class="edit-btn">✏️</button>
+                        <button class="delete-btn button-danger">🗑️</button>
+                        <button class="add-subgoal-btn">➕</button>
+                    </td>
+                </tr>
+                
+                <!-- Subgoals for Writing -->
+                <tr class="sub-goal">
+                    <td contenteditable="true">Poem</td>
+                    <td colspan="2"></td>
+                    <td></td>
+                    <td></td>
+                    <td><input type="date" value="2025-06-06"></td>
+                    <td>
+                        <div class="progress-input">
+                            <input type="number" value="10" class="progress-value">
+                        </div>
+                    </td>
+                    <td class="last-updated">06-06-2025 10:45 AM</td>
+                    <td><input type="number" value="10"></td>
+                    <td><input type="number" value="40"></td>
+                    <td>
+                        <select>
+                            <option selected>pages</option>
+                            <option>words</option>
+                            <option>poems</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select>
+                            <option>Daily</option>
+                            <option selected>Weekly</option>
+                            <option>Monthly</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="status-select">
+                            <option value="completed" selected class="status-completed">✅ Completed</option>
+                            <option value="in-progress" class="status-in-progress">In Progress</option>
+                            <option value="pending" class="status-pending">Pending</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="rank-select">
+                            <option>1/10</option>
+                            <option>2/10</option>
+                            <option>3/10</option>
+                            <option>4/10</option>
+                            <option>5/10</option>
+                            <option>6/10</option>
+                            <option>7/10</option>
+                            <option>8/10</option>
+                            <option>9/10</option>
+                            <option selected>10/10</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button class="edit-btn">✏️</button>
+                        <button class="delete-btn button-danger">🗑️</button>
+                    </td>
+                </tr>
+                
+                <!-- More subgoals would go here -->
+                
+                <!-- Main Goal 3 -->
+                <tr>
+                    <td contenteditable="true">➕ Reading</td>
+                    <td><input type="date" value="2025-06-02"></td>
+                    <td><input type="date" value="2025-06-20"></td>
+                    <td class="available-time">18 days</td>
+                    <td class="time-remaining">12 days</td>
+                    <td><input type="date" value="2025-06-12"></td>
+                    <td>
+                        <div class="progress-input">
+                            <input type="number" value="300" class="progress-value">
+                        </div>
+                    </td>
+                    <td class="last-updated">08-06-2025 09:15 AM</td>
+                    <td><input type="number" value="600"></td>
+                    <td><input type="number" value="1200"></td>
+                    <td>
+                        <select>
+                            <option selected>minutes</option>
+                            <option>pages</option>
+                            <option>books</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select>
+                            <option selected>Daily</option>
+                            <option>Weekly</option>
+                            <option>Monthly</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="status-select">
+                            <option value="in-progress" selected class="status-in-progress">⏳ In Progress</option>
+                            <option value="completed" class="status-completed">Completed</option>
+                            <option value="pending" class="status-pending">Pending</option>
+                            <option value="overdue" class="status-overdue">Overdue</option>
+                            <option value="behind" class="status-behind">⚠️ Behind</option>
+                            <option value="ontrack" class="status-ontrack">🚀 On Track</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="rank-select">
+                            <option>1/10</option>
+                            <option>2/10</option>
+                            <option>3/10</option>
+                            <option>4/10</option>
+                            <option selected>5/10</option>
+                            <option>6/10</option>
+                            <option>7/10</option>
+                            <option>8/10</option>
+                            <option>9/10</option>
+                            <option>10/10</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button class="edit-btn">✏️</button>
+                        <button class="delete-btn button-danger">🗑️</button>
+                        <button class="add-subgoal-btn">➕</button>
                     </td>
                 </tr>
             </tbody>
         </table>
         
         <div class="button-group">
-            <button id="addGoalBtn" class="button-success">➕ Add New Goal</button>
+            <button id="addGoalBtn" class="button-success">➕ Add New Main Goal</button>
+            <button id="updateAllBtn">🔄 Update All Time Calculations</button>
+            <button id="exportBtn">📤 Export Data</button>
+            <button id="importBtn">📥 Import Data</button>
+            <input type="file" id="importFileInput" accept=".json" class="hidden">
         </div>
     </div>
     
     <div class="section">
         <h2>Progress Log</h2>
         <div id="progressLog"></div>
-        
-        <div class="button-group">
-            <button id="exportLogBtn">📤 Export Log</button>
-            <button id="importLogBtn">📥 Import Log</button>
-            <input type="file" id="importFileInput" accept=".json" class="hidden">
-        </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize with sample log entries
             const sampleLogs = [
-                { goal: "Read 3 books", progress: "1 books", timestamp: "2023-05-15 14:30:00" },
-                { goal: "Walk 10,000 steps daily", progress: "7500 steps", timestamp: "2023-05-15 09:15:00" },
-                { goal: "Learn JavaScript", progress: "45 hours", timestamp: "2023-05-14 18:45:00" }
+                { goal: "Walking", progress: "12,000 steps", timestamp: "08-06-2025 09:32 AM", status: "⚠️ Behind Schedule", rank: "8/10" },
+                { goal: "Writing (Poem)", progress: "10 pages", timestamp: "06-06-2025 10:45 AM", status: "✅ Completed", rank: "10/10" },
+                { goal: "Reading", progress: "300 minutes", timestamp: "08-06-2025 09:15 AM", status: "⏳ In Progress", rank: "5/10" }
             ];
             
             let logs = [...sampleLogs];
             renderLogs();
+            updateAllTimeCalculations();
             
-            // Update progress and add to log
-            document.querySelectorAll('.update-progress').forEach(button => {
-                button.addEventListener('click', function() {
-                    const row = this.closest('tr');
-                    const goalName = row.querySelector('td:first-child').textContent;
-                    const progressValue = row.querySelector('.progress-value').value;
-                    const unit = row.querySelector('select').value;
-                    const timestamp = new Date().toLocaleString();
-                    
-                    // Update last updated
-                    row.querySelector('.last-updated').textContent = timestamp;
-                    
-                    // Add to log
-                    logs.unshift({
-                        goal: goalName,
-                        progress: `${progressValue} ${unit}`,
-                        timestamp: timestamp
-                    });
-                    
-                    renderLogs();
-                });
-            });
-            
-            // Delete row
-            document.querySelectorAll('.delete-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    if (confirm('Are you sure you want to delete this goal?')) {
-                        this.closest('tr').remove();
-                    }
-                });
-            });
-            
-            // Edit row (simple focus mode)
-            document.querySelectorAll('.edit-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const row = this.closest('tr');
-                    row.style.backgroundColor = '#fffde7';
-                    setTimeout(() => {
-                        row.style.backgroundColor = '';
-                    }, 2000);
-                });
-            });
-            
-            // Add new goal
-            document.getElementById('addGoalBtn').addEventListener('click', function() {
-                const tbody = document.querySelector('#goalTable tbody');
-                const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                    <td contenteditable="true">New Goal</td>
-                    <td><input type="date" value="${new Date().toISOString().split('T')[0]}"></td>
-                    <td><input type="date" value="${new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0]}"></td>
-                    <td><input type="number" value="1"></td>
-                    <td>
-                        <div class="progress-input">
-                            <input type="number" value="0" class="progress-value">
-                            <button class="update-progress">Update</button>
-                        </div>
-                    </td>
-                    <td>
-                        <select>
-                            <option>units</option>
-                            <option>items</option>
-                            <option>hours</option>
-                        </select>
-                    </td>
-                    <td>
-                        <select class="status-select">
-                            <option value="pending" class="status-pending">Pending</option>
-                            <option value="in-progress" selected class="status-in-progress">In Progress</option>
-                            <option value="completed" class="status-completed">Completed</option>
-                            <option value="overdue" class="status-overdue">Overdue</option>
-                        </select>
-                    </td>
-                    <td class="last-updated">Not updated yet</td>
-                    <td>
-                        <button class="edit-btn">✏️ Edit</button>
-                        <button class="delete-btn button-danger">🗑️ Delete</button>
-                    </td>
-                `;
-                
-                tbody.appendChild(newRow);
-                
-                // Add event listeners to new buttons
-                newRow.querySelector('.update-progress').addEventListener('click', function() {
-                    const row = this.closest('tr');
-                    const goalName = row.querySelector('td:first-child').textContent;
-                    const progressValue = row.querySelector('.progress-value').value;
-                    const unit = row.querySelector('select').value;
-                    const timestamp = new Date().toLocaleString();
-                    
-                    row.querySelector('.last-updated').textContent = timestamp;
-                    
-                    logs.unshift({
-                        goal: goalName,
-                        progress: `${progressValue} ${unit}`,
-                        timestamp: timestamp
-                    });
-                    
-                    renderLogs();
-                });
-                
-                newRow.querySelector('.delete-btn').addEventListener('click', function() {
-                    if (confirm('Are you sure you want to delete this goal?')) {
-                        this.closest('tr').remove();
-                    }
-                });
-                
-                newRow.querySelector('.edit-btn').addEventListener('click', function() {
-                    const row = this.closest('tr');
-                    row.style.backgroundColor = '#fffde7';
-                    setTimeout(() => {
-                        row.style.backgroundColor = '';
-                    }, 2000);
-                });
-            });
-            
-            // Export log
-            document.getElementById('exportLogBtn').addEventListener('click', function() {
-                const dataStr = JSON.stringify(logs, null, 2);
-                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-                
-                const exportFileDefaultName = 'progress-log.json';
-                
-                const linkElement = document.createElement('a');
-                linkElement.setAttribute('href', dataUri);
-                linkElement.setAttribute('download', exportFileDefaultName);
-                linkElement.click();
-            });
-            
-            // Import log
-            document.getElementById('importLogBtn').addEventListener('click', function() {
-                document.getElementById('importFileInput').click();
-            });
-            
-            document.getElementById('importFileInput').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const importedLogs = JSON.parse(e.target.result);
-                        if (Array.isArray(importedLogs)) {
-                            logs = importedLogs;
-                            renderLogs();
-                            alert('Log imported successfully!');
-                        } else {
-                            alert('Invalid log format');
-                        }
-                    } catch (error) {
-                        alert('Error parsing log file');
-                        console.error(error);
-                    }
-                };
-                reader.readAsText(file);
-            });
-            
-            // Render logs to the log section
-            function renderLogs() {
-                const logContainer = document.getElementById('progressLog');
-                logContainer.innerHTML = '';
-                
-                if (logs.length === 0) {
-                    logContainer.innerHTML = '<p>No log entries yet.</p>';
-                    return;
-                }
-                
-                logs.forEach(log => {
-                    const logEntry = document.createElement('div');
-                    logEntry.className = 'log-entry';
-                    logEntry.innerHTML = `
-                        <strong>${log.goal}</strong>: ${log.progress}
-                        <div class="log-timestamp">${log.timestamp}</div>
-                    `;
-                    logContainer.appendChild(logEntry);
+            // Update time calculations for all rows
+            function updateAllTimeCalculations() {
+                document.querySelectorAll('#goalTable tbody tr:not(.sub-goal)').forEach(row => {
+                    updateTimeCalculations(row);
                 });
             }
-        });
-    </script>
-</body>
-</html>
+            
+            // Calculate time values for a row
+            function updateTimeCalculations(row) {
+                const startDate = new Date(row.querySelector('input[type="date"]').value);
+                const endDate = new Date(row.querySelectorAll('input[type="date"]')[1].value);
+                const today = new Date();
+                
+                // Available time (days between start and end)
+                const availableTime = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+                row.querySelector('.available-time').textContent = `${availableTime} days`;
+                
+                // Time remaining (days between today and end)
+                const timeRemaining = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+                row.querySelector('.time-remaining').textContent = `${timeRemaining > 0 ? timeRemaining : 0} days`;
+                
+                // Auto-update status based on time rem
