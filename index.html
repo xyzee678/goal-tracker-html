@@ -1,0 +1,169 @@
+<!DOCTYPE html><html>
+<head>
+  <title>Goal Tracker Table</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      border: 1px solid #aaa;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+    .subgoal {
+      padding-left: 20px;
+      background-color: #fafafa;
+    }
+    button {
+      padding: 6px 12px;
+      font-size: 0.9em;
+      margin: 4px;
+    }
+    input[type="text"] {
+      width: 100%;
+      box-sizing: border-box;
+    }
+    #log-section {
+      margin-top: 40px;
+    }
+    .controls {
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h2>Goal Tracker Table</h2>  <div class="controls">
+    <button onclick="exportData()">Export Data</button>
+    <input type="file" id="importFile" accept=".json" onchange="importData(event)">
+  </div>  <table id="goalTable">
+    <thead>
+      <tr>
+        <th>Goal Name</th>
+        <th>Starting Date</th>
+        <th>Ending Date</th>
+        <th>Available Time</th>
+        <th>Time Remaining</th>
+        <th>Follow-up Date</th>
+        <th>Progress Filled</th>
+        <th>Last Updated</th>
+        <th>Required Progress</th>
+        <th>End Target</th>
+        <th>Unit</th>
+        <th>Repetition</th>
+        <th>Status</th>
+        <th>Progress Rank / Marks</th>
+        <th>Edit</th>
+        <th>Delete</th>
+      </tr>
+    </thead>
+    <tbody id="goalBody">
+      <tr>
+        <td contenteditable="true">Walking</td>
+        <td contenteditable="true">2025-06-01</td>
+        <td contenteditable="true">2025-06-30</td>
+        <td>30 days</td>
+        <td>22 days</td>
+        <td contenteditable="true">2025-06-08</td>
+        <td><input type="text" oninput="updateProgress(this)"></td>
+        <td class="lastUpdated"></td>
+        <td contenteditable="true">15000</td>
+        <td contenteditable="true">150000</td>
+        <td contenteditable="true">steps</td>
+        <td contenteditable="true">Daily</td>
+        <td contenteditable="true">Behind Schedule</td>
+        <td contenteditable="true">8/10 or 80%</td>
+        <td><button onclick="editRow(this)">Edit</button></td>
+        <td><button onclick="deleteRow(this)">Delete</button></td>
+      </tr>
+    </tbody>
+  </table>  <div id="log-section">
+    <h3>Log Summary (Every Entry)</h3>
+    <table id="logTable">
+      <thead>
+        <tr>
+          <th>Goal Name</th>
+          <th>Progress Added</th>
+          <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody id="logBody">
+      </tbody>
+    </table>
+  </div>  <script>
+    const logs = [];
+
+    function updateProgress(input) {
+      const row = input.closest("tr");
+      const goalName = row.cells[0].innerText;
+      const lastUpdatedCell = row.querySelector(".lastUpdated");
+      const now = new Date();
+      lastUpdatedCell.innerText = now.toLocaleString();
+
+      const value = input.value;
+      if (!value || isNaN(value)) return;
+
+      // Log the entry
+      const logEntry = {
+        goal: goalName,
+        value: value,
+        time: now.toLocaleString()
+      };
+      logs.push(logEntry);
+      updateLogTable();
+    }
+
+    function updateLogTable() {
+      const logBody = document.getElementById("logBody");
+      logBody.innerHTML = "";
+      logs.forEach(entry => {
+        const row = logBody.insertRow();
+        row.insertCell(0).innerText = entry.goal;
+        row.insertCell(1).innerText = entry.value;
+        row.insertCell(2).innerText = entry.time;
+      });
+    }
+
+    function editRow(btn) {
+      const row = btn.closest("tr");
+      const cells = row.querySelectorAll("td[contenteditable]");
+      cells.forEach(cell => cell.focus());
+    }
+
+    function deleteRow(btn) {
+      const row = btn.closest("tr");
+      row.remove();
+    }
+
+    function exportData() {
+      const data = { logs };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'goal_data.json';
+      a.click();
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const imported = JSON.parse(e.target.result);
+        if (imported.logs) {
+          logs.length = 0;
+          logs.push(...imported.logs);
+          updateLogTable();
+        }
+      };
+      reader.readAsText(file);
+    }
+  </script></body>
+</html>
